@@ -1,0 +1,52 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+function App() {
+  const [courses, setCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+
+  useEffect(() => {
+    axios.get('/api/courses')
+      .then(response => setCourses(response.data))
+      .catch(error => console.error(error));
+  }, []);
+
+  const handleEnroll = (courseId) => {
+    axios.post(`/api/enroll`, { courseId })
+      .then(response => alert('Enrolled Successfully!'))
+      .catch(error => console.error(error));
+  };
+
+  return (
+    <div>
+      <h1>Available Courses</h1>
+      <ul>
+        {courses.map(course => (
+          <li key={course.id}>
+            <h2>{course.title}</h2>
+            <p>{course.description}</p>
+            <button onClick={() => handleEnroll(course.id)}>Enroll</button>
+            <button onClick={() => setSelectedCourse(course)}>Watch</button>
+          </li>
+        ))}
+      </ul>
+      {selectedCourse && <VideoPlayer course={selectedCourse} />}
+    </div>
+  );
+}
+
+function VideoPlayer({ course }) {
+  return (
+    <div>
+      <h2>{course.title}</h2>
+      <video width="800" controls>
+        <source src={course.videoUrl} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  );
+}
+
+export default App;
+
+
